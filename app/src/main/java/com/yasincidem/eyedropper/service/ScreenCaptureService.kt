@@ -39,7 +39,7 @@ class ScreenCaptureService : Service() {
         override fun onImageAvailable(reader: ImageReader) {
 
             mHandler?.postDelayed({
-                mImageReader?.acquireLatestImage().use { image ->
+                mImageReader?.acquireNextImage().use { image ->
                     if (image != null) {
                         val planes = image.planes
                         val buffer = planes[0].buffer
@@ -78,7 +78,7 @@ class ScreenCaptureService : Service() {
                         stopSelf()
                     }
                 }
-            }, 500L)
+            }, 300L)
         }
     }
 

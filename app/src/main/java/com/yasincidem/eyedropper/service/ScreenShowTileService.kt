@@ -24,12 +24,12 @@ class ScreenShowTileService : TileService() {
         super.onClick()
 
 
-        startVibrating()
         startActivityAndCollapse(Intent(this, ScreenShotActivity::class.java).apply {
             addFlags(FLAG_ACTIVITY_NEW_TASK)
             addFlags(FLAG_ACTIVITY_NO_ANIMATION)
             addFlags(FLAG_ACTIVITY_CLEAR_TOP)
         })
+        startVibrating()
     }
 
     private fun startVibrating() {
