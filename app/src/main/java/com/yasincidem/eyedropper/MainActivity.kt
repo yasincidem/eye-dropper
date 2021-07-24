@@ -51,6 +51,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.PAN_LIMIT_CENTER
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ZOOM_FOCUS_CENTER
 import com.yasincidem.eyedropper.databinding.ActivityMainBinding
+import com.yasincidem.eyedropper.ext.copyToClipboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.graphics.Color as ComposeColor
@@ -141,6 +142,18 @@ class MainActivity : AppCompatActivity() {
             finishAffinity()
         } else {
 
+            screenShotImageView.apply {
+                setBackgroundColor(Color.BLACK)
+                setImage(ImageSource.uri(screenshotUri))
+                setDoubleTapZoomStyle(ZOOM_FOCUS_CENTER)
+                setOnTouchListener { _, event ->
+                    gestureDetector.onTouchEvent(event)
+                }
+                isPanEnabled = true
+                setPanLimit(PAN_LIMIT_CENTER)
+                maxScale = 100F
+            }
+
             lifecycleScope.launchWhenCreated {
                 val bitmap: Bitmap = withContext(Dispatchers.IO) {
                     Glide.with(this@MainActivity)
@@ -150,18 +163,6 @@ class MainActivity : AppCompatActivity() {
                         .load(screenshotUri)
                         .submit()
                         .get()
-                }
-
-                screenShotImageView.apply {
-                    setBackgroundColor(Color.BLACK)
-                    setImage(ImageSource.bitmap(bitmap))
-                    setDoubleTapZoomStyle(ZOOM_FOCUS_CENTER)
-                    setOnTouchListener { _, event ->
-                        gestureDetector.onTouchEvent(event)
-                    }
-                    isPanEnabled = true
-                    setPanLimit(PAN_LIMIT_CENTER)
-                    maxScale = 100F
                 }
 
                 val builder = Palette.Builder(bitmap)
@@ -292,9 +293,4 @@ fun RowScope.ColorContainer(
             }
         }
     }
-}
-
-fun Context.copyToClipboard(text: CharSequence) {
-    val clipboard = ContextCompat.getSystemService(this, ClipboardManager::class.java)
-    clipboard?.setPrimaryClip(ClipData.newPlainText("", text))
 }
