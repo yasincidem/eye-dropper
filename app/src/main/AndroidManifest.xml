@@ -29,7 +29,13 @@
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
+            tools:ignore="LockedOrientationActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
 
         <service
             android:name=".service.InteractionService"
@@ -51,7 +57,8 @@
             android:icon="@drawable/ic_eye_dropper"
             android:label="Eye dropper"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
-            tools:targetApi="q">
+            tools:targetApi="q"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>

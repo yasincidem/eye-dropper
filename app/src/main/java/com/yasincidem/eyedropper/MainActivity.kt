@@ -1,13 +1,13 @@
 package com.yasincidem.eyedropper
 
 import android.annotation.SuppressLint
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PointF
+import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.KeyEvent
@@ -41,7 +41,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
@@ -65,6 +64,9 @@ class MainActivity : AppCompatActivity() {
     }
     private val colorContainer: ComposeView by lazy {
         binding.colorContainer
+    }
+    private val imageUri: String? by lazy {
+        retrieveImageUri()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -135,8 +137,8 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-        val screenshotUri = intent.getStringExtra("screenshot")
-        if (screenshotUri.isNullOrEmpty()) {
+
+        if (imageUri.isNullOrEmpty()) {
 
             //Toast.makeText(this, "screenshot is null", Toast.LENGTH_SHORT).show()
             finishAffinity()
@@ -144,7 +146,7 @@ class MainActivity : AppCompatActivity() {
 
             screenShotImageView.apply {
                 setBackgroundColor(Color.BLACK)
-                setImage(ImageSource.uri(screenshotUri))
+                setImage(ImageSource.uri(imageUri!!))
                 setDoubleTapZoomStyle(ZOOM_FOCUS_CENTER)
                 setOnTouchListener { _, event ->
                     gestureDetector.onTouchEvent(event)
@@ -160,7 +162,7 @@ class MainActivity : AppCompatActivity() {
                         .asBitmap()
                         .diskCacheStrategy(DiskCacheStrategy.NONE)
                         .skipMemoryCache(true)
-                        .load(screenshotUri)
+                        .load(imageUri)
                         .submit()
                         .get()
                 }
@@ -210,7 +212,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
         finishAffinity()
     }
 
@@ -218,6 +219,27 @@ class MainActivity : AppCompatActivity() {
         if (keyCode == KeyEvent.KEYCODE_BACK)
             finishAffinity()
         return super.onKeyDown(keyCode, event)
+    }
+
+    private fun retrieveImageUri(): String? {
+        val screenshotUri = intent.getStringExtra("screenshot")
+        return if (screenshotUri.isNullOrEmpty().not())
+            screenshotUri.toString()
+        else
+            handleSendImage()
+    }
+
+    private fun handleSendImage(): String? {
+        when (intent.action) {
+            Intent.ACTION_SEND -> {
+                if (intent.type?.startsWith("image/") == true) {
+                    (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
+                        return it.toString()
+                    }
+                }
+            }
+        }
+        return null
     }
 }
 
