@@ -21,6 +21,7 @@
         tools:ignore="AllowBackup">
         <activity
             android:name=".ScreenShotActivity"
+            android:theme="@style/Theme.EyeDropper.Transparent"
             android:autoRemoveFromRecents="true"
             android:screenOrientation="portrait"
             android:exported="true"
