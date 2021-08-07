@@ -38,6 +38,18 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".LauncherActivity"
+            android:theme="@style/Theme.EyeDropper.Main"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".service.InteractionService"
             android:permission="android.permission.BIND_VOICE_INTERACTION">
