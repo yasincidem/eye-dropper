@@ -65,9 +65,7 @@ class MainActivity : AppCompatActivity() {
     private val colorContainer: ComposeView by lazy {
         binding.colorContainer
     }
-    private val imageUri: String? by lazy {
-        retrieveImageUri()
-    }
+    private var imageUri: String? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -137,6 +135,7 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
+        retrieveAndSetImageUri()
 
         if (imageUri.isNullOrEmpty()) {
 
@@ -221,9 +220,9 @@ class MainActivity : AppCompatActivity() {
         return super.onKeyDown(keyCode, event)
     }
 
-    private fun retrieveImageUri(): String? {
+    private fun retrieveAndSetImageUri() {
         val screenshotUri = intent.getStringExtra("screenshot")
-        return if (screenshotUri.isNullOrEmpty().not())
+        imageUri = if (screenshotUri.isNullOrEmpty().not())
             screenshotUri.toString()
         else
             handleSendImage()
