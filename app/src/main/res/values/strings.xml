@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Eye Dropper</string>
     <string name="title_activity_launcher">LauncherActivity</string>
+    <string name="app_icons">App icons</string>
+    <string name="app_icons_count">%1$s icons</string>
+    <string name="last_updated">Last updated</string>
 </resources>

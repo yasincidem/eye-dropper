@@ -43,6 +43,7 @@
             android:name=".LauncherActivity"
             android:theme="@style/Theme.EyeDropper.Main"
             android:screenOrientation="portrait"
+            android:exported="true"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -53,7 +54,8 @@
 
         <service
             android:name=".service.InteractionService"
-            android:permission="android.permission.BIND_VOICE_INTERACTION">
+            android:permission="android.permission.BIND_VOICE_INTERACTION"
+            android:exported="false">
             <meta-data
                 android:name="android.voice_interaction"
                 android:resource="@xml/voice_interaction_service" />
@@ -89,6 +91,16 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/fileprovider" />
+        </provider>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="com.yasincidem.eyedropper.appstartup.CoilInitializer"
+                android:value="androidx.startup" />
         </provider>
     </application>
 
