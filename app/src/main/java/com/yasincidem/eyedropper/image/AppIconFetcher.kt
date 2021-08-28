@@ -47,7 +47,6 @@ class AppIconFetcher(private val context: Context) : Fetcher<Uri> {
         pm = context.packageManager
     }
 
-
     override fun key(data: Uri): String = data.toString()
 
     override fun handles(data: Uri) = data.scheme == SCHEME_PNAME
@@ -83,7 +82,7 @@ class AppIconFetcher(private val context: Context) : Fetcher<Uri> {
                 return getFullResIcon(resources, iconId)
             }
         } catch (ignored: PackageManager.NameNotFoundException) {
-            Log.d("yasinnnn", ignored.message.toString())
+            // TODO()
         }
 
         return fullResDefaultActivityIcon
