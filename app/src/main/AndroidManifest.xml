@@ -8,26 +8,28 @@
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
 
 
     <application
-        android:allowBackup="true"
         android:name="com.yasincidem.EyeDropperApplication"
+        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:resizeableActivity="false"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:resizeableActivity="false"
         android:theme="@style/Theme.EyeDropper"
         tools:ignore="AllowBackup">
         <activity
             android:name=".ScreenShotActivity"
-            android:theme="@style/Theme.EyeDropper.Transparent"
             android:autoRemoveFromRecents="true"
-            android:screenOrientation="portrait"
             android:exported="true"
-            tools:ignore="LockedOrientationActivity"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.EyeDropper.Transparent"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -42,9 +44,9 @@
 
         <activity
             android:name=".LauncherActivity"
-            android:theme="@style/Theme.EyeDropper.Main"
-            android:screenOrientation="portrait"
             android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.EyeDropper.Main"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,8 +57,8 @@
 
         <service
             android:name=".service.InteractionService"
-            android:permission="android.permission.BIND_VOICE_INTERACTION"
-            android:exported="false">
+            android:exported="false"
+            android:permission="android.permission.BIND_VOICE_INTERACTION">
             <meta-data
                 android:name="android.voice_interaction"
                 android:resource="@xml/voice_interaction_service" />
@@ -70,12 +72,12 @@
             android:permission="android.permission.BIND_VOICE_INTERACTION" />
         <service
             android:name=".service.ScreenShowTileService"
+            android:exported="true"
             android:foregroundServiceType="mediaProjection"
             android:icon="@drawable/ic_eye_dropper"
             android:label="Eye dropper"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
-            tools:targetApi="q"
-            android:exported="true">
+            tools:targetApi="q">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
@@ -103,6 +105,13 @@
                 android:name="com.yasincidem.eyedropper.appstartup.CoilInitializer"
                 android:value="androidx.startup" />
         </provider>
+
     </application>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+        </intent>
+    </queries>
 
 </manifest>
