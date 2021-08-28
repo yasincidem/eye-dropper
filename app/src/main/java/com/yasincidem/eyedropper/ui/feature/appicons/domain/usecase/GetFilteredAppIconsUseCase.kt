@@ -9,11 +9,13 @@ class GetFilteredAppIconsUseCase @Inject constructor(
     private val appIconsRepository: AppIconsRepository
 ) {
 
-    operator fun invoke(): List<Uri> =
-        appIconsRepository.getAppIcons()
-        .sortedByDescending {
+    operator fun invoke(): List<Uri> = with(appIconsRepository) {
+        getAppIcons().filter {
+            getLaunchIntent(it.packageName) != null
+        }.sortedByDescending {
             it.lastUpdateTime
         }.map {
             Uri.parse("${AppIconFetcher.SCHEME_PNAME}:${it.applicationInfo.packageName}")
         }
+    }
 }
