@@ -117,9 +117,11 @@ fun AppIconsCard(
 
             Box {
 
+                val iconSize = 48.dp
+
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(12.dp),
                     modifier = Modifier.onGloballyPositioned {
                         width.value = (it.size.width / density)
                         height.value = (it.size.height / density)
@@ -132,7 +134,7 @@ fun AppIconsCard(
                                 data = uri
                             ),
                             contentDescription = null,
-                            modifier = Modifier.size(48.dp)
+                            modifier = Modifier.size(iconSize)
                         )
                     })
                 }
@@ -148,7 +150,7 @@ fun AppIconsCard(
                         tween(durationMillis = 300, delayMillis = 30)
                     }
                 ) { state ->
-                    if (state.firstVisibleItemIndex <= 1 && state.firstVisibleItemScrollOffset <= 1f) Color.Transparent else MaterialTheme.colors.surface
+                    if (state.firstVisibleItemScrollOffset < iconSize.value / 2 && state.firstVisibleItemIndex < 1) Color.Transparent else MaterialTheme.colors.surface
                 }
 
                 val endShadowColor: Color by endShadowTransition.animateColor(
@@ -157,17 +159,18 @@ fun AppIconsCard(
                         tween(durationMillis = 300, delayMillis = 30)
                     }
                 ) { state ->
-                    if (state.isScrolledToTheEnd()) Color.Transparent else MaterialTheme.colors.surface
+                    if (state.isScrolledToTheEnd() ) Color.Transparent else MaterialTheme.colors.surface
                 }
 
                 Box(
                     Modifier
                         .size(width.value.dp, height.value.dp)
+                        .padding(top = 8.dp)
                         .background(
                             Brush.horizontalGradient(
                                 0.0f to startShadowColor,
-                                0.3f to Color.Transparent,
-                                0.7f to Color.Transparent,
+                                0.08f to Color.Transparent,
+                                0.92f to Color.Transparent,
                                 1.0f to endShadowColor
                             )
                         )
