@@ -12,7 +12,6 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
-
     <application
         android:name="com.yasincidem.EyeDropperApplication"
         android:allowBackup="true"
