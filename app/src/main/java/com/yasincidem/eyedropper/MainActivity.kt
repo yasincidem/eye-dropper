@@ -54,7 +54,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -383,11 +382,11 @@ fun CenterComponent(
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
-        ColorColumn(colorList) { _, swatch ->
+        ColorColumn(colorList, viewModel) { _, swatch ->
             SwatchColorBox(swatch, colorBoxSize, viewModel.getHexColor(swatch.value?.rgb))
         }
 
-        ColorColumn(colorList) { index, swatch ->
+        ColorColumn(colorList, viewModel) { index, swatch ->
             TextColorBox(
                 index,
                 "Title Text Color",
@@ -397,7 +396,7 @@ fun CenterComponent(
             )
         }
 
-        ColorColumn(colorList) { index, swatch ->
+        ColorColumn(colorList, viewModel) { index, swatch ->
             TextColorBox(
                 index,
                 "Body Text Color",
@@ -431,9 +430,12 @@ fun ColorBox(size: Dp, color: ComposeColor, modifier: Modifier = Modifier, hexCo
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ColorColumn(colorList: List<Swatch>, itemContent: @Composable (Int, Swatch) -> Unit) {
-
-    val context = LocalContext.current
+fun ColorColumn(
+    colorList: List<Swatch>,
+    viewModel: MainViewModel,
+    itemContent: @Composable (Int, Swatch) -> Unit,
+) {
+    val copy = LocalCopy.current
 
     Column(
         Modifier
@@ -447,7 +449,8 @@ fun ColorColumn(colorList: List<Swatch>, itemContent: @Composable (Int, Swatch) 
                 backgroundColor = ComposeColor.Transparent,
                 shape = RoundedCornerShape(8.dp),
                 onClick = {
-
+                    val hexColor = viewModel.getHexColor(swatch.value?.rgb)
+                    copy(hexColor)
                 },
                 indication = rememberRipple(color = ComposeColor.White)
             ) {
