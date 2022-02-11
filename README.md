@@ -1,6 +1,6 @@
 # 👀 eye-dropper
 
-This app currently extracts and lists the colors from a screenshot using the Palette API. It also provides color definitions that developers use conventially. The provided definitions are as follows:
+This app currently extracts and lists the colors from a screenshot using the Palette API. It also provides color definitions that developers use conventionally. The provided definitions are as follows:
 
 |           |   |
 |------------------------------------|------------------------------------------|
