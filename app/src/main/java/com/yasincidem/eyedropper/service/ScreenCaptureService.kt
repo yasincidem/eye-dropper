@@ -178,6 +178,16 @@ class ScreenCaptureService : Service() {
         mImageReader?.setOnImageAvailableListener(ImageAvailableListener(), mHandler)
     }
 
+
+    override fun onDestroy() {
+        stopProjection()
+        mMediaProjection = null
+        mImageReader = null
+        mHandler = null
+        mVirtualDisplay = null
+        super.onDestroy()
+    }
+
     companion object {
         private const val TAG = "ScreenCaptureService"
         private const val RESULT_CODE = "RESULT_CODE"

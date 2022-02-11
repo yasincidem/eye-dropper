@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <voice-interaction-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:recognitionService="com.yasincidem.eyedropper.InteractionService"
-    android:sessionService="com.yasincidem.eyedropper.InteractionSessionService"
+    android:recognitionService="com.yasincidem.eyedropper.service.InteractionService"
+    android:sessionService="com.yasincidem.eyedropper.service.InteractionSessionService"
     android:supportsAssist="true" />

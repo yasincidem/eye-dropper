@@ -46,17 +46,11 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.EyeDropper.Main"
-            tools:ignore="LockedOrientationActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            tools:ignore="LockedOrientationActivity" />
 
         <service
             android:name=".service.InteractionService"
-            android:exported="false"
+            android:exported="true"
             android:permission="android.permission.BIND_VOICE_INTERACTION">
             <meta-data
                 android:name="android.voice_interaction"

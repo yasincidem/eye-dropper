@@ -1,209 +1,103 @@
 package com.yasincidem.eyedropper
 
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.PointF
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
-import android.view.GestureDetector
-import android.view.Gravity
 import android.view.KeyEvent
-import android.view.MotionEvent
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.updateTransition
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.rememberSwipeableState
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.palette.graphics.Palette
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.davemorrissey.labs.subscaleview.ImageSource
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.PAN_LIMIT_CENTER
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ZOOM_FOCUS_CENTER
-import com.yasincidem.eyedropper.databinding.ActivityMainBinding
+import com.bumptech.glide.request.RequestOptions
+import com.google.accompanist.insets.ProvideWindowInsets
+import com.skydoves.landscapist.glide.GlideImage
+import com.skydoves.landscapist.palette.BitmapPalette
 import com.yasincidem.eyedropper.ext.copyToClipboard
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.yasincidem.eyedropper.ui.MainViewModel
+import com.yasincidem.eyedropper.ui.theme.JetBrainsMonoFontFamily
+import dagger.hilt.android.AndroidEntryPoint
+import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 import androidx.compose.ui.graphics.Color as ComposeColor
 
+val LocalCopy = staticCompositionLocalOf<(String) -> Unit> { { } }
 
-class MainActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private val screenShotImageView: SubsamplingScaleImageView by lazy {
-        binding.screenshot
-    }
-    private val colorContainer: ComposeView by lazy {
-        binding.colorContainer
-    }
     private var imageUri: String? = null
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-
-        val gestureDetector =
-            GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-                override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-                    return super.onSingleTapConfirmed(e)
-                }
-
-                override fun onSingleTapUp(e: MotionEvent?): Boolean {
-
-                    return super.onSingleTapUp(e)
-                }
-
-                override fun onContextClick(e: MotionEvent?): Boolean {
-
-                    return super.onContextClick(e)
-                }
-
-                override fun onDoubleTap(e: MotionEvent?): Boolean {
-                    return super.onDoubleTap(e)
-                }
-
-                override fun onDoubleTapEvent(e: MotionEvent?): Boolean {
-                    return super.onDoubleTapEvent(e)
-                }
-
-                override fun onDown(e: MotionEvent?): Boolean {
-                    return super.onDown(e)
-                }
-
-                override fun onLongPress(e: MotionEvent?) {
-
-                    super.onLongPress(e)
-                }
-
-                override fun onFling(
-                    e1: MotionEvent?,
-                    e2: MotionEvent?,
-                    velocityX: Float,
-                    velocityY: Float
-                ): Boolean {
-
-                    return super.onFling(e1, e2, velocityX, velocityY)
-                }
-
-                override fun onScroll(
-                    e1: MotionEvent?,
-                    e2: MotionEvent?,
-                    distanceX: Float,
-                    distanceY: Float
-                ): Boolean {
-                    val sCoord: PointF? =
-                        screenShotImageView.viewToSourceCoord(e1?.x ?: 0f, e1?.y ?: 0f)
-                    return super.onScroll(e1, e2, distanceX, distanceY)
-                }
-
-                override fun onShowPress(e: MotionEvent?) {
-
-                    super.onShowPress(e)
-                }
-            })
 
         retrieveAndSetImageUri()
 
         if (imageUri.isNullOrEmpty()) {
-
-            //Toast.makeText(this, "screenshot is null", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT).show()
             finishAffinity()
         } else {
-
-            screenShotImageView.apply {
-                setBackgroundColor(Color.BLACK)
-                setImage(ImageSource.uri(imageUri!!))
-                setDoubleTapZoomStyle(ZOOM_FOCUS_CENTER)
-                setOnTouchListener { _, event ->
-                    gestureDetector.onTouchEvent(event)
-                }
-                isPanEnabled = true
-                setPanLimit(PAN_LIMIT_CENTER)
-                maxScale = 100F
-            }
-
-            lifecycleScope.launchWhenCreated {
-                val bitmap: Bitmap = withContext(Dispatchers.IO) {
-                    Glide.with(this@MainActivity)
-                        .asBitmap()
-                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                        .skipMemoryCache(true)
-                        .load(imageUri)
-                        .submit()
-                        .get()
-                }
-
-                val builder = Palette.Builder(bitmap)
-
-                builder.generate { palette: Palette? ->
-
-                    val colorMap = hashMapOf(
-                        0 to (palette?.vibrantSwatch to "Vibrant Swatch"),
-                        1 to (palette?.darkVibrantSwatch to "Dark Vibrant Swatch"),
-                        2 to (palette?.lightVibrantSwatch to "Light Vibrant Swatch"),
-                        3 to (palette?.mutedSwatch to "Muted Swatch"),
-                        4 to (palette?.darkMutedSwatch to "Dark Muted Swatch"),
-                        5 to (palette?.lightMutedSwatch to "Light Muted Swatch"),
-                    )
-
-                    colorContainer.setContent {
-                        var selectedColorIndex by remember { mutableStateOf(-1) }
-
-                        Row(
-                            Modifier
-                                .fillMaxSize(),
-                            verticalAlignment = Alignment.Bottom,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            for (i in 0..5) {
-                                val color = colorMap[i]?.first?.rgb
-                                ColorContainer(
-                                    color = ComposeColor(color ?: 0),
-                                    isActive = selectedColorIndex == i,
-                                    isVisible = color != null,
-                                    textOnLongPress = colorMap[i]?.second ?: "",
-                                    textColor = colorMap[i]?.first?.bodyTextColor ?: 0
-                                ) {
-                                    color?.let {
-                                        selectedColorIndex = i
-                                        copyToClipboard(Integer.toHexString(it))
-                                    }
-                                }
-                            }
-                        }
+            setContent {
+                ProvideWindowInsets {
+                    CompositionLocalProvider(LocalCopy provides this::copyToClipboard) {
+                        App(
+                            imageUri = imageUri.toString()
+                        )
                     }
                 }
             }
@@ -242,76 +136,357 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-enum class SizeState {
-    Small,
-    Large
-}
+data class Swatch(val value: Palette.Swatch?, val description: String)
 
-data class ColorContainerState(val sizeState: SizeState, val isActive: Boolean)
-
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun RowScope.ColorContainer(
-    color: ComposeColor,
-    isActive: Boolean,
-    isVisible: Boolean,
-    textOnLongPress: String,
-    textColor: Int,
-    selectColor: () -> Unit
+fun App(
+    viewModel: MainViewModel = viewModel(),
+    imageUri: String,
 ) {
+    var palette by remember { mutableStateOf<Palette?>(null) }
 
-    val context = LocalContext.current
-    var heightState by remember { mutableStateOf(SizeState.Small) }
+    val screenHeight = LocalConfiguration.current.screenHeightDp
+    val screenWidth = LocalConfiguration.current.screenWidthDp
 
-    val transition =
-        updateTransition(targetState = ColorContainerState(heightState, isActive), label = "height")
-    val currentHeight by transition.animateDp(
-        label = "changing height anim",
-    ) { state ->
-        if (state.isActive) 80.dp else 45.dp
+    val colorList by remember {
+        derivedStateOf {
+            listOf(
+                Swatch(palette?.vibrantSwatch, "Vibrant"),
+                Swatch(palette?.darkVibrantSwatch, "Dark Vibrant"),
+                Swatch(palette?.lightVibrantSwatch, "Light Vibrant"),
+                Swatch(palette?.mutedSwatch, "Muted"),
+                Swatch(palette?.darkMutedSwatch, "Dark Muted"),
+                Swatch(palette?.lightMutedSwatch, "Light Muted")
+            ).filter { it.value != null }
+        }
     }
 
-    val roundedShape = RoundedCornerShape(16.dp)
+    val sizePx = with(LocalDensity.current) { -screenHeight.div(8).dp.toPx() }
+    val sizeTopPx = with(LocalDensity.current) { -screenHeight.div(2).dp.toPx() }
+    val sizeTopTopPx = with(LocalDensity.current) { -screenHeight.div(1.2).dp.toPx() }
+    val anchors = mapOf(0f to 0, sizePx to 1, sizeTopPx to 2, sizeTopTopPx to 3)
+    val swipeableState = rememberSwipeableState(1)
 
-    if (isVisible) {
-        Box(
-            Modifier
-                .weight(1f)
-                .height(currentHeight)
-                .padding(horizontal = 4.dp)
-                .background(color = color, shape = roundedShape)
-                .border(width = 0.8.dp, color = ComposeColor.White, shape = roundedShape)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onLongPress = {
-                            Toast
-                                .makeText(context, textOnLongPress, Toast.LENGTH_SHORT)
-                                .apply {
-                                    setGravity(Gravity.TOP, 0, 250)
-                                    show()
-                                }
-                        },
-                        onPress = {
-                            selectColor()
-                            heightState = when (heightState) {
-                                SizeState.Small -> SizeState.Large
-                                SizeState.Large -> SizeState.Small
-                            }
-                        }
+    val overflowStateDp by remember {
+        derivedStateOf {
+            swipeableState.overflow.value.coerceIn(-(screenHeight.dp.value * 2)..0f).absoluteValue.div(
+                48).dp
+        }
+    }
+    val colorBoxSize = screenWidth.div((colorList.size * 2).coerceAtLeast(1)).dp
+
+    Surface(
+        Modifier
+            .fillMaxSize()
+            .swipeable(
+                state = swipeableState,
+                anchors = anchors,
+                orientation = Orientation.Vertical
+            ),
+        color = ComposeColor.Black
+    ) {
+        Crossfade(targetState = swipeableState) { state ->
+            when (state.currentValue) {
+                3 -> {
+                    TopComponent(
+                        modifier = Modifier,
+                        colorList = colorList,
+                        screenHeight = screenHeight,
+                        colorBoxSize = colorBoxSize,
+                        viewModel = viewModel,
+                        overflowStateDp = overflowStateDp
                     )
                 }
-
-        ) {
-            if (isActive) {
-                Text(
-                    modifier = Modifier
-                        .rotate(-90F)
-                        .align(Alignment.Center),
-                    text = "Copied!",
-                    fontSize = 12.sp,
-                    maxLines = 1,
-                    color = ComposeColor(textColor)
-                )
+                2 -> {
+                    CenterComponent(
+                        colorList = colorList,
+                        screenHeight = screenHeight,
+                        colorBoxSize = colorBoxSize,
+                        viewModel = viewModel
+                    )
+                }
+                0, 1 -> {
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = screenHeight.div(1.1).dp, bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        itemsIndexed(colorList,
+                            key = { index, item -> "${index}:${item.value?.rgb}" },
+                            itemContent = { _, swatch ->
+                                val currentItem = swatch.value?.rgb
+                                ColorBox(
+                                    colorBoxSize,
+                                    ComposeColor(currentItem ?: 0),
+                                    hexColor = viewModel.getHexColor(currentItem)
+                                )
+                            })
+                    }
+                }
             }
         }
+
+        GlideImage(
+            imageModel = imageUri,
+            bitmapPalette = BitmapPalette(imageModel = imageUri, useCache = false) {
+                palette = it
+            },
+            requestOptions = {
+                RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+            },
+            contentScale = ContentScale.FillHeight,
+            alignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .offset {
+                    IntOffset(0, swipeableState.offset.value.roundToInt())
+                }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun TopComponent(
+    modifier: Modifier = Modifier,
+    colorList: List<Swatch>,
+    screenHeight: Int,
+    colorBoxSize: Dp,
+    viewModel: MainViewModel,
+    overflowStateDp: Dp,
+) {
+    Column(modifier.then(Modifier
+        .fillMaxSize()
+        .padding(
+            bottom = 16.dp,
+            start = 16.dp,
+            end = 16.dp,
+            top = screenHeight
+                .div(6)
+                .plus(56).dp
+        )
+        .offset(y = -overflowStateDp)),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        colorList.forEach { swatch ->
+            val currentColor = swatch.value?.rgb
+
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp,
+                    Alignment.Start)
+            ) {
+                Column(
+                    Modifier
+                        .width(100.dp)
+                        .padding(4.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = viewModel.getColorName(currentColor),
+                        color = ComposeColor.White,
+                        style = MaterialTheme.typography.subtitle2,
+                        textAlign = TextAlign.Center)
+
+                    Text(
+                        text = viewModel.getHexColor(currentColor),
+                        color = ComposeColor.White,
+                        style = MaterialTheme.typography.overline)
+
+                    ColorBox(colorBoxSize,
+                        ComposeColor(currentColor ?: 0),
+                        modifier = Modifier.padding(top = 8.dp),
+                        viewModel.getHexColor(swatch.value?.rgb))
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    with(viewModel) {
+                        ResourceCard(getAnnotatedXmlColorText(getXmlColorResource(currentColor)))
+                        ResourceCard(getAnnotatedComposeColorText(getComposeColorResource(
+                            currentColor)))
+                    }
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    with(viewModel) {
+                        ResourceCard(getAnnotatedXmlColorText(getXmlMaterialColorResource(
+                            currentColor)))
+                        ResourceCard(getAnnotatedComposeColorText(
+                            getComposeMaterialColorResource(
+                                currentColor)))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ResourceCard(text: AnnotatedString) {
+    val copy = LocalCopy.current
+
+    Card(
+        backgroundColor = ComposeColor.Black,
+        border = BorderStroke(1.dp, ComposeColor.DarkGray),
+        shape = RoundedCornerShape(4.dp),
+        indication = rememberRipple(color = ComposeColor.White),
+        onClick = {
+            copy(text.toString())
+        }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start)
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier.padding(8.dp),
+                color = ComposeColor.White,
+                fontFamily = JetBrainsMonoFontFamily
+            )
+        }
+    }
+}
+
+@Composable
+fun CenterComponent(
+    modifier: Modifier = Modifier,
+    colorList: List<Swatch>,
+    screenHeight: Int,
+    colorBoxSize: Dp,
+    viewModel: MainViewModel,
+) {
+    Row(
+        modifier.then(Modifier
+            .padding(
+                bottom = 16.dp,
+                start = 16.dp,
+                end = 16.dp,
+                top = screenHeight
+                    .div(2)
+                    .plus(56).dp
+            )
+            .fillMaxSize()),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        ColorColumn(colorList) { _, swatch ->
+            SwatchColorBox(swatch, colorBoxSize, viewModel.getHexColor(swatch.value?.rgb))
+        }
+
+        ColorColumn(colorList) { index, swatch ->
+            TextColorBox(
+                index,
+                "Title Text Color",
+                colorBoxSize,
+                swatch.value?.titleTextColor ?: 0,
+                viewModel.getHexColor(swatch.value?.rgb)
+            )
+        }
+
+        ColorColumn(colorList) { index, swatch ->
+            TextColorBox(
+                index,
+                "Body Text Color",
+                colorBoxSize,
+                swatch.value?.bodyTextColor ?: 0,
+                viewModel.getHexColor(swatch.value?.rgb)
+            )
+        }
+    }
+}
+
+@Composable
+fun ColorBox(size: Dp, color: ComposeColor, modifier: Modifier = Modifier, hexColor: String) {
+    val circleShape = CircleShape
+    val copy = LocalCopy.current
+
+    Box(modifier = modifier
+        .then(Modifier
+            .size(size)
+            .border(border = BorderStroke(1.dp, ComposeColor.LightGray),
+                shape = circleShape)
+            .clip(circleShape)
+            .background(color = color)
+            .padding(32.dp)
+            .clickable {
+                copy(hexColor)
+            }
+        )
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ColorColumn(colorList: List<Swatch>, itemContent: @Composable (Int, Swatch) -> Unit) {
+
+    val context = LocalContext.current
+
+    Column(
+        Modifier
+            .fillMaxHeight()
+            .width(IntrinsicSize.Max),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
+        colorList.forEachIndexed { index, swatch ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                backgroundColor = ComposeColor.Transparent,
+                shape = RoundedCornerShape(8.dp),
+                onClick = {
+
+                },
+                indication = rememberRipple(color = ComposeColor.White)
+            ) {
+                itemContent(index, swatch)
+            }
+        }
+    }
+}
+
+@Composable
+fun SwatchColorBox(swatch: Swatch, colorBoxSize: Dp, hexColor: String) {
+    Column(
+        Modifier.padding(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = swatch.description,
+            color = ComposeColor.White,
+            style = MaterialTheme.typography.overline)
+
+        ColorBox(colorBoxSize, ComposeColor(swatch.value?.rgb ?: 0), hexColor = hexColor)
+    }
+}
+
+@Composable
+fun TextColorBox(index: Int, text: String, colorBoxSize: Dp, color: Int, hexColor: String) {
+    Column(
+        Modifier.padding(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (index == 0) {
+            Text(
+                text = text,
+                color = ComposeColor.White,
+                style = MaterialTheme.typography.overline)
+        }
+
+        ColorBox(colorBoxSize, ComposeColor(color), hexColor = hexColor)
     }
 }

@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 
 fun Context.hideKeyboard(view: View) {
@@ -16,4 +17,5 @@ fun Context.hideKeyboard(view: View) {
 fun Context.copyToClipboard(text: CharSequence) {
     val clipboard = ContextCompat.getSystemService(this, ClipboardManager::class.java)
     clipboard?.setPrimaryClip(ClipData.newPlainText("", text))
+    Toast.makeText(this, "Copied!", Toast.LENGTH_SHORT).show()
 }

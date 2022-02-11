@@ -19,6 +19,11 @@ val AtkinsonHyperlegibleFontFamily = FontFamily(
     Font(R.font.atkinson_hyperlegible_bold_italic, FontWeight.Bold, FontStyle.Italic)
 )
 
+val JetBrainsMonoFontFamily = FontFamily(
+    Font(R.font.jetbrains_mono_regular, FontWeight.Normal),
+    Font(R.font.atkinson_hyperlegible_italic, FontWeight.Normal, FontStyle.Italic),
+)
+
 val Typography = Typography(
     defaultFontFamily = AtkinsonHyperlegibleFontFamily,
     body1 = TextStyle(
